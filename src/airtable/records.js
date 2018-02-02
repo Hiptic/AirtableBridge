@@ -1,5 +1,5 @@
 const { mappings } = require("../github");
-const debug = console.log;
+const debug =  require("debug")("devtools-bot");
 const hankey = require("hankey");
 
 async function removeDupes(airtable, table) {
@@ -36,11 +36,11 @@ async function get(airtable, table, ID) {
       .all();
 
     if (records.length > 0) {
-      console.log(`Found record ${ID}`);
+      debug(`Found record ${ID}`);
       return records[0].id;
     }
   } catch (e) {
-    console.log(`Did not find record ${ID}`);
+    debug(`Did not find record ${ID}`);
     return null;
   }
 }
@@ -85,11 +85,11 @@ async function getUserIDs(airtable, github, users) {
 let failedRecords = [];
 
 async function updateRecords(airtable, github, table, payloads) {
+  debug(`# Records ${payloads.length}`);
   let failedRecords = [];
   let failureReasons = [];
 
   // await removeDupes(airtable, table);
-  console.log(`# Records ${payloads.length}`);
 
   for (payload of payloads) {
     const response = await update(airtable, github, table, payload);
@@ -101,14 +101,14 @@ async function updateRecords(airtable, github, table, payloads) {
     }
   }
 
-  console.log(`Failed Records ${JSON.stringify(failedRecords)}`);
-  console.log(`Failure Reasons: ${JSON.stringify(failureReasons)}`);
+  debug(`Failed Records ${JSON.stringify(failedRecords)}`);
+  debug(`Failure Reasons: ${JSON.stringify(failureReasons)}`);
 }
 
 function shouldIgnore(table, payload) {
   if (table == "Issues") {
     if (payload.issue.pull_request) {
-      console.log(
+      debug(
         `Skipping ${table} ${payload.issue.number} because it is a pull request`
       );
       return true;
@@ -123,7 +123,7 @@ async function update(airtable, github, table, payload) {
   let data;
   try {
     if (shouldIgnore(table, payload)) {
-      console.log(`Skipping ${table} ${JSON.stringify(payload)}`);
+      debug(`Skipping ${table} ${JSON.stringify(payload)}`);
       return;
     }
 
@@ -132,13 +132,14 @@ async function update(airtable, github, table, payload) {
       return;
     }
     // if (data.Author) {
-    //   // const authorId = await getUserId(airtable, github, data.Author);
-    //   // data.Author = [data.Author];
+    //   const authorId = await getUserId(airtable, github, data.Author);
+    //   data.Author = [data.Author];
     // }
-    //
-    // if (data.Assignees) {
-    //   // data.Assignees = await getUserIDs(airtable, github, data.Assignees);
-    // }
+
+    if (data.Assignees) {
+      data.Assignees = data.Assignees.join(', ')
+      // data.Assignees = await getUserIDs(airtable, github, data.Assignees);
+    }
 
     if (data.Labels) {
       const labels = await Promise.all(data.Labels.map(async label => {
@@ -150,11 +151,11 @@ async function update(airtable, github, table, payload) {
             .all();
 
           if (records.length > 0) {
-            console.log(`Label record ${label}`);
+            debug(`Label record ${label}`);
             return records[0].id;
           }
         } catch (e) {
-          console.log(`Did not find label ${label}`);
+          debug(`Did not find label ${label}`);
           return;
         }
       }));
@@ -164,16 +165,16 @@ async function update(airtable, github, table, payload) {
     const recordId = await get(airtable, table, data.ID);
 
     if (recordId) {
-      console.log(`Updating ${table} record ${data.ID} ${data.Title}`);
+      debug(`Updating ${table} record ${data.ID} ${data.Title}`);
       record = await airtable(table).update(recordId, data);
     } else {
-      console.log(`Creating ${table} record ${data.ID} ${data.Title}`);
+      debug(`Creating ${table} record ${data.ID} ${data.Title}`);
       record = await airtable(table).create(data);
     }
 
     return null;
   } catch (e) {
-    console.log(
+    debug(
       `Failed to update ${table} record ${data &&
         data.ID} -  ${e.message} ${e.stack}`
     );
@@ -191,9 +192,9 @@ async function create(airtable, table, payload) {
     record = await airtable(table).create(data);
     return record;
   } catch (e) {
-    console.log(`Failed to create ${table} record ${data.ID} - ${e.message}`);
+    debug(`Failed to create ${table} record ${data.ID} - ${e.message}`);
     return null;
   }
 }
 
-module.exports = { create, update, get, updateRecords };
+module.exports = { create, update, get, getUserId, updateRecords };

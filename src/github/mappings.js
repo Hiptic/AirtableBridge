@@ -32,7 +32,7 @@ function mapIssue(payload) {
   } = payload;
   const labelNames = labels.map(label => label.name);
   const author = user.login;
-  const Assignees = assignees.map(assignee => assignee.login).join();
+  const Assignees = assignees.map(assignee => assignee.login);
 
   return {
     Title: title,

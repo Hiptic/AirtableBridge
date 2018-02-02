@@ -3,11 +3,11 @@ const { authenticate } = require("../airtable");
 const env = require("dotenv").config();
 var Airtable = require("airtable");
 
-// async function updatePR(robot, context) {
-//   const config = await context.config("airtable-crm.yml");
-//   const airtable = authenticate(config.base);
-//   records.update(airtable, context.github, "Pulls", context.payload);
-// }
+async function updatePR(robot, context) {
+  const config = await context.config("airtable-crm.yml");
+  const airtable = authenticate(config.base);
+  records.update(airtable, context.github, "Pulls", context.payload);
+}
 
 async function updateIssue(robot, context) {
   console.log("update to issues");
