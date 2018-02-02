@@ -1,5 +1,5 @@
 const { mappings } = require("../github");
-const debug = require("debug")("devtools-bot");
+const debug = console.log;
 const hankey = require("hankey");
 
 async function removeDupes(airtable, table) {
@@ -32,7 +32,6 @@ async function get(airtable, table, ID) {
     const records = await airtable(table)
       .select({
         filterByFormula: `{ID} = ${ID}`,
-        view: table
       })
       .all();
 
@@ -89,7 +88,9 @@ async function updateRecords(airtable, github, table, payloads) {
   let failedRecords = [];
   let failureReasons = [];
 
-  await removeDupes(airtable, table);
+  // await removeDupes(airtable, table);
+
+  debug(`# Records ${payloads.length}`);
 
   for (payload of payloads) {
     const response = await update(airtable, github, table, payload);
@@ -132,8 +133,8 @@ async function update(airtable, github, table, payload) {
       return;
     }
     if (data.Author) {
-      const authorId = await getUserId(airtable, github, data.Author);
-      data.Author = [authorId];
+      // const authorId = await getUserId(airtable, github, data.Author);
+      // data.Author = [data.Author];
     }
 
     if (data.Assignees) {

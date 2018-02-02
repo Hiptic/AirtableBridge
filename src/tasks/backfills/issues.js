@@ -5,19 +5,23 @@ const {
 } = require("../../airtable");
 const cache = require("../../utils/cache");
 const debug = require("debug")("devtools-bot");
-const airtable = authenticateAirtable();
+const env = require("dotenv").config();
+var Airtable = require("airtable");
+
+const airtable = new Airtable({apiKey: env.parsed.AIRTABLE_TOKEN}).base(env.parsed.AIRTABLE_BASE);
+
 const github = authenticate();
 
 async function getIssues() {
-  const { owner, repo } = process.env;
-  if (!owner || !repo) {
-    throw new Error(`Missing owner ${owner}, repo ${repo}`);
-  }
+  // const { owner, repo } = process.env;
+  // if (!owner || !repo) {
+  //   throw new Error(`Missing owner ${owner}, repo ${repo}`);
+  // }
 
   return search({ cache: true }, "issues", page =>
     github.issues.getForRepo({
-      owner,
-      repo,
+      owner: "Hiptic",
+      repo: "airtable-sync",
       per_page: 100,
       state: "all",
       page

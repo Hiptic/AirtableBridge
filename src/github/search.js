@@ -2,11 +2,11 @@ const debug = require("debug")("devtools-bot");
 const cache = require("../utils/cache");
 
 async function search(options, name, searchFn) {
-  const shouldCache = "cache" in options ? options.cache : true;
-
-  if (shouldCache) {
-    return cache.get(name);
-  }
+  // const shouldCache = "cache" in options ? options.cache : true;
+  //
+  // if (shouldCache) {
+  //   return cache.get(name);
+  // }
 
   let page = 1;
   let results = [];
