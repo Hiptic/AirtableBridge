@@ -77,11 +77,14 @@ function mapUser(user) {
 }
 
 function mapLabel(label) {
-  console.log(label)
+  const { id, url, name, color } = label;
+
   return {
-    Name: label.name,
-    Color: label.color,
-    URL: label.url,
+    ID: id,
+    Name: name,
+    Color: color,
+    URL: url,
+    Default: label.default
   };
 }
 
