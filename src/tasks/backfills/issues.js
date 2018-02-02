@@ -11,12 +11,14 @@ var Airtable = require("airtable");
 const airtable = new Airtable({apiKey: env.parsed.AIRTABLE_TOKEN}).base(env.parsed.AIRTABLE_BASE);
 
 const github = authenticate();
+const owner = "Hiptic";
+const repo = "OneSignal";
 
 async function getLabels() {
   return search({ cache: true }, "labels", page =>
     github.issues.getLabels({
-      owner: "Hiptic",
-      repo: "OneSignal",
+      owner,
+      repo,
       per_page: 100,
       state: "all",
       page
@@ -27,8 +29,8 @@ async function getLabels() {
 async function getIssues() {
   return search({ cache: true }, "issues", page =>
     github.issues.getForRepo({
-      owner: "Hiptic",
-      repo: "OneSignal",
+      owner,
+      repo,
       per_page: 100,
       state: "all",
       page
@@ -36,10 +38,24 @@ async function getIssues() {
   );
 }
 
+async function getUsers() {
+  return search({ cache: true }, "users", page =>
+    github.orgs.getMembers({
+      org: owner,
+      per_page: 100,
+      page
+    })
+  );
+}
+
 (async () => {
   const labels = await getLabels();
-  await records.updateRecords(airtable, github, "Labels", labels);
+  const label_payloads = labels.map(label => ({ label }));
+  await records.updateRecords(airtable, github, "Labels", label_payloads);
 
+  const users = await getUsers();
+  const user_payloads = users.map(user => ({ user }));
+  await records.updateRecords(airtable, github, "Users", user_payloads);
 
   const issues = await getIssues();
   const payloads = issues.map(issue => ({ issue }));

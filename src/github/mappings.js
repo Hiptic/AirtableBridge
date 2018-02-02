@@ -64,27 +64,32 @@ function mapCommit(commit) {
 }
 
 function mapUser(user) {
-  const { login, html_url, location, avatar_url, name, company, email } = user;
+  const { user: { login, id, avatar_url, name, url, site_admin } } = user;
   return {
     Login: login,
-    Avatar: getAvatar(user),
-    Profile: html_url,
-    Email: email,
-    Location: location,
-    Company: company,
-    Name: name
+    ID: id,
+    Avatar: avatar_url,
+    URL: url,
+    Admin: site_admin
   };
 }
 
 function mapLabel(label) {
-  const { id, url, name, color } = label;
+  const {
+    label: {
+      id,
+      url,
+      name,
+      color
+    }
+  } = label;
 
   return {
     ID: id,
     Name: name,
     Color: color,
     URL: url,
-    Default: label.default
+    Default: label.label.default
   };
 }
 

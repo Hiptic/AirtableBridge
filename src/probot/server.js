@@ -10,17 +10,26 @@ async function updatePR(robot, context) {
 }
 
 async function updateIssue(robot, context) {
-  console.log("update to issues");
+  console.log("update issue");
   // const config = await context.config("airtable-crm.yml");
   // const airtable = authenticate(config.base);
   const airtable = new Airtable({apiKey: env.parsed.AIRTABLE_TOKEN}).base(env.parsed.AIRTABLE_BASE);
   records.update(airtable, context.github, "Issues", context.payload);
 }
 
+async function updateLabel(robot, context) {
+  console.log("update label");
+  // const config = await context.config("airtable-crm.yml");
+  // const airtable = authenticate(config.base);
+  const airtable = new Airtable({apiKey: env.parsed.AIRTABLE_TOKEN}).base(env.parsed.AIRTABLE_BASE);
+  records.update(airtable, context.github, "Labels", context.payload);
+}
+
 function probotPlugin(robot) {
   console.log("Starting");
   // robot.on("pull_request", context => updatePR(robot, context));
   robot.on("issues", context => updateIssue(robot, context));
+  robot.on("label", context => updateLabel(robot, context));
 }
 
 process.on("unhandledRejection", (reason, p) => {
