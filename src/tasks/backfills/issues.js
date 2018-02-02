@@ -12,16 +12,23 @@ const airtable = new Airtable({apiKey: env.parsed.AIRTABLE_TOKEN}).base(env.pars
 
 const github = authenticate();
 
-async function getIssues() {
-  // const { owner, repo } = process.env;
-  // if (!owner || !repo) {
-  //   throw new Error(`Missing owner ${owner}, repo ${repo}`);
-  // }
+async function getLabels() {
+  return search({ cache: true }, "labels", page =>
+    github.issues.getLabels({
+      owner: "Hiptic",
+      repo: "OneSignal",
+      per_page: 100,
+      state: "all",
+      page
+    })
+  );
+}
 
+async function getIssues() {
   return search({ cache: true }, "issues", page =>
     github.issues.getForRepo({
       owner: "Hiptic",
-      repo: "airtable-sync",
+      repo: "OneSignal",
       per_page: 100,
       state: "all",
       page
@@ -30,6 +37,10 @@ async function getIssues() {
 }
 
 (async () => {
+  const labels = await getLabels();
+  await records.updateRecords(airtable, github, "Labels", labels);
+
+
   const issues = await getIssues();
   const payloads = issues.map(issue => ({ issue }));
   await records.updateRecords(airtable, github, "Issues", payloads);

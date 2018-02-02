@@ -32,7 +32,7 @@ function mapIssue(payload) {
   } = payload;
   const labelNames = labels.map(label => label.name);
   const author = user.login;
-  const Assignees = assignees.map(assignee => assignee.login);
+  const Assignees = assignees.map(assignee => assignee.login).join();
 
   return {
     Title: title,
@@ -76,6 +76,15 @@ function mapUser(user) {
   };
 }
 
+function mapLabel(label) {
+  console.log(label)
+  return {
+    Name: label.name,
+    Color: label.color,
+    URL: label.url,
+  };
+}
+
 function mapPR(pr) {
   const {
     html_url,
@@ -113,7 +122,8 @@ function mapPayload(table, payload) {
     Issues: mapIssue,
     Pulls: mapPR,
     Users: mapUser,
-    Commits: mapCommit
+    Commits: mapCommit,
+    Labels: mapLabel
   };
 
   const data = map[table](payload);

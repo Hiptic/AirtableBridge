@@ -3,7 +3,8 @@
   "version": "0.0.5",
   "scripts": {
     "test": "jest src",
-    "start": "probot run ./src/probot/server.js"
+    "start": "probot run ./src/probot/server.js",
+    "backfill": "node src/tasks/backfills/issues"
   },
   "dependencies": {
     "airtable": "^0.5.0",
