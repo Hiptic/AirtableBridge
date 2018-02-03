@@ -1,5 +1,5 @@
 const { mappings } = require("../github");
-const debug =  require("debug")("devtools-bot");
+const debug =  console.log;
 const hankey = require("hankey");
 
 async function removeDupes(airtable, table) {
@@ -56,19 +56,23 @@ async function getUserId(airtable, github, login) {
 
     if (records.length > 0) {
       return records[0].id;
-    } else {
-      const payload = await github.users.getForUser({ username: login });
-      if (payload && payload.data) {
-        const user = mappings.mapUser(payload.data);
-        const response = await airtable("Users").create(user);
-        if (response && response.id) {
-          debug(`Created user ${login}`);
-          return response.id;
-        }
-      }
     }
   } catch (e) {
     debug(`failed to find user ${login} - ${e.message}`);
+    return null;
+  }
+  try {
+    const payload = await github.users.getForUser({ username: login });
+    if (payload && payload.data) {
+      const user = mappings.mapUser(payload.data);
+      const response = await airtable("Users").create(user);
+      if (response && response.id) {
+        debug(`Created user ${login}`);
+        return response.id;
+      }
+    }
+  } catch (e) {
+    debug(`failed to create user ${login} - ${e.message}`);
     return null;
   }
 }
@@ -128,17 +132,16 @@ async function update(airtable, github, table, payload) {
     }
 
     data = mappings.mapPayload(table, payload);
+    console.log(data)
     if (data.isPR) {
       return;
     }
-    // if (data.Author) {
-    //   const authorId = await getUserId(airtable, github, data.Author);
-    //   data.Author = [data.Author];
-    // }
+    if (data.Author) {
+      data.Author = [await getUserId(airtable, github, data.Author)];
+    }
 
     if (data.Assignees) {
-      data.Assignees = data.Assignees.join(', ')
-      // data.Assignees = await getUserIDs(airtable, github, data.Assignees);
+      data.Assignees = await getUserIDs(airtable, github, data.Assignees);
     }
 
     if (data.Labels) {

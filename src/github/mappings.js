@@ -64,13 +64,12 @@ function mapCommit(commit) {
 }
 
 function mapUser(user) {
-  const { user: { login, id, avatar_url, name, url, site_admin } } = user;
+  const { login, id, avatar_url, name, url } = user;
   return {
     Login: login,
     ID: id,
     Avatar: avatar_url,
-    URL: url,
-    Admin: site_admin
+    URL: url
   };
 }
 

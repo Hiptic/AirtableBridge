@@ -54,8 +54,7 @@ async function getUsers() {
   await records.updateRecords(airtable, github, "Labels", label_payloads);
 
   const users = await getUsers();
-  const user_payloads = users.map(user => ({ user }));
-  await records.updateRecords(airtable, github, "Users", user_payloads);
+  await records.updateRecords(airtable, github, "Users", users);
 
   const issues = await getIssues();
   const payloads = issues.map(issue => ({ issue }));
